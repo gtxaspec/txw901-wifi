@@ -1,0 +1,24 @@
+-----------------------------------------------------
+2024/12/18
+	为适应主控DMA地址对齐要求，if_sdio.c/if_usb.c 在数据收发时将buffer地址进行对齐处理。
+	
+-----------------------------------------------------
+2024/11/23
+	iwpriv.c ： 限制 BLE adv_data，scan_resp 的最大长度为 31.
+	hgic_iwpriv_do： out buffer 末尾填充 0 .
+	smac: 修正驱动参数设置问题
+	ble demo 添加 indicate 功能。
+	smac: delay init 失败时再次调用 delay_init 循环执行， 避免出现接口恢复时，没有创建 网卡 接口。
+	hgic_copyto_iwreq 越界检查修改。
+	hgics: 模块异常复位时，接口自动恢复，此时需要重新给固件设置MAC地址。
+
+-----------------------------------------------------
+2024/09/25
+	hgic_blenc.c: 支持BLE分包发送。 MTU默认512。
+	修复 hgic_iwpriv_blenc_set_coexist  API 代码错误。
+	hgic_blenc.c： 添加支持 PREPARE_WRITE_REQ、EXECUTE_WRITE_REQ 命令。
+	fwdl.c: 支持 自定义 固件路径。
+
+-----------------------------------------------------
+2024/03/11
+	fmac: 修正不能读取 sleep命令response的问题。
