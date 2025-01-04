@@ -14,7 +14,7 @@ CURRENT_PATH := $(shell pwd)
 #ARCH := arm
 #COMPILER := arm-fullhan-linux-uclibcgnueabi-
 #LINUX_KERNEL_PATH := $(CURRENT_PATH)/../linux-3.0.8
-#CFLAGS += -DFH8852 -DCONFIG_USB_ZERO_PACKET
+#ccflags-y += -DFH8852 -DCONFIG_USB_ZERO_PACKET
 
 #Hi3536d
 #ARCH := arm
@@ -38,19 +38,19 @@ LINUX_KERNEL_PATH := $(CURRENT_PATH)/../source/linux-3.10.14.x
 #LINUX_KERNEL_PATH := /usr/src/linux-headers-$(LINUX_KERNEL)
 
 #################################################################################################
-#CFLAGS += -DCONFIG_HGIC_AH
+#ccflags-y += -DCONFIG_HGIC_AH
 #export CONFIG_HGIC_AH = y
 
-CFLAGS += -DCONFIG_HGIC_2G
+ccflags-y += -DCONFIG_HGIC_2G
 export CONFIG_HGIC_2G = y
 
-#CFLAGS += -DCONFIG_HGIC_STABR
+#ccflags-y += -DCONFIG_HGIC_STABR
 #export CONFIG_HGIC_STABR = y
 
-CFLAGS += -DCONFIG_SDIO_REINIT
+ccflags-y += -DCONFIG_SDIO_REINIT
 
 #主控的DMA对齐要求: 4字节对齐或更多
-#CFLAGS += -DSDIO_DMA_ALIGN=4 -DUSB_DMA_ALIGN=4
+#ccflags-y += -DSDIO_DMA_ALIGN=4 -DUSB_DMA_ALIGN=4
 
 help: 
 	@echo "--------------------------------------------------------------------------------------"
@@ -59,10 +59,6 @@ help:
 	@echo "    make smac_usb : compile SMAC driver. only support usb interface.  generate hgics.ko"
 	@echo "    make smac_sdio: compile SMAC driver. only support sdio interface. generate hgics.ko"
 	@echo ""
-	@echo "    make fmac     : compile FMAC driver. support sdio/usb interface.  generate hgicf.ko"
-	@echo "    make fmac_usb : compile FMAC driver. only support usb interface.  generate hgicf.ko"
-	@echo "    make fmac_sdio: compile FMAC driver. only support sdio interface. generate hgicf.ko"
-	@echo ""
 	@echo "    make clean"
 	@echo "--------------------------------------------------------------------------------------"
 
@@ -70,36 +66,21 @@ prepare:
 	mkdir -p ko
 
 smac: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_SDIO  -DCONFIG_HGIC_USB" modules
-	cp -f hgic_smac/hgics.ko ko/hgics.ko
-	$(COMPILER)strip -g ko/hgics.ko
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO  -DCONFIG_HGIC_USB" modules
+	cp -f hgic_smac/hgics.ko ko/txw901.ko
+	$(COMPILER)strip -g ko/txw901.ko
 
 smac_usb: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_USB" modules
-	cp -f hgic_smac/hgics.ko ko/hgics.ko
-	$(COMPILER)strip -g ko/hgics.ko	
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_USB" modules
+	cp -f hgic_smac/hgics.ko ko/txw901u.ko
+	$(COMPILER)strip -g ko/txw901u.ko
 
 smac_sdio: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_SDIO" modules
-	cp -f hgic_smac/hgics.ko ko/hgics.ko
-	$(COMPILER)strip -g ko/hgics.ko
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO" modules
+	cp -f hgic_smac/hgics.ko ko/txw901s.ko
+	$(COMPILER)strip -g ko/txw901s.ko
 
-fmac: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_fmac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICF=m CONFIG_HGIC_USB=y CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_SDIO  -DCONFIG_HGIC_USB" modules
-	cp -f hgic_fmac/hgicf.ko ko/hgicf.ko
-	$(COMPILER)strip -g ko/hgicf.ko
-
-fmac_usb: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_fmac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICF=m CONFIG_HGIC_USB=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_USB" modules
-	cp -f hgic_fmac/hgicf.ko ko/hgicf.ko
-	$(COMPILER)strip -g ko/hgicf.ko
-
-fmac_sdio: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_fmac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICF=m CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(CFLAGS) -DCONFIG_HGIC_SDIO" modules
-	cp -f hgic_fmac/hgicf.ko ko/hgicf.ko
-	$(COMPILER)strip -g ko/hgicf.ko
-
-clean: 
+clean:
 	@find ./ -name "*.o" | xargs rm -fv
 	@find ./ -name "*.ko" | xargs rm -fv
 	@find ./ -name "*.cmd" | xargs rm -fv
@@ -107,4 +88,5 @@ clean:
 	@find ./ -name "*.markers" | xargs rm -fv
 	@find ./ -name "*.order" | xargs rm -fv
 	@find ./ -name "*.mod.c" | xargs rm -fv
+	@rm -rf hgic_smac/.tmp_versions/
 	@rm -rf ko
