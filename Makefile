@@ -41,7 +41,7 @@ LINUX_KERNEL_PATH := $(CURRENT_PATH)/../source/linux-3.10.14.x
 #ccflags-y += -DCONFIG_HGIC_AH
 #export CONFIG_HGIC_AH = y
 
-ccflags-y += -DCONFIG_HGIC_2G
+ccflags-y += -DCONFIG_HGIC_2G -DCONFIG_USB_ZERO_PACKET
 export CONFIG_HGIC_2G = y
 
 #ccflags-y += -DCONFIG_HGIC_STABR
@@ -66,17 +66,17 @@ prepare:
 	mkdir -p ko
 
 smac: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO  -DCONFIG_HGIC_USB" modules
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO  -DCONFIG_HGIC_USB" modules -j$(shell nproc))
 	cp -f hgic_smac/hgics.ko ko/txw901.ko
 	$(COMPILER)strip -g ko/txw901.ko
 
 smac_usb: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_USB" modules
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_USB=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_USB" modules -j$(nproc)
 	cp -f hgic_smac/hgics.ko ko/txw901u.ko
 	$(COMPILER)strip -g ko/txw901u.ko
 
 smac_sdio: prepare
-	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO" modules
+	$(MAKE) -C $(LINUX_KERNEL_PATH) M=$(CURRENT_PATH)/hgic_smac ARCH=$(ARCH) CROSS_COMPILE=$(COMPILER) CONFIG_HGICS=m CONFIG_HGIC_SDIO=y EXTRA_CFLAGS="$(ccflags-y) -DCONFIG_HGIC_SDIO" modules -j$(nproc)
 	cp -f hgic_smac/hgics.ko ko/txw901s.ko
 	$(COMPILER)strip -g ko/txw901s.ko
 
